@@ -1,0 +1,8 @@
+{
+  "alwaysUpdateLinks": true,
+  "attachmentFolderPath": "02-原始资料/assets",
+  "newFileFolderPath": "01-收件箱",
+  "newFileLocation": "folder",
+  "showUnsupportedFiles": true,
+  "useMarkdownLinks": false
+}
