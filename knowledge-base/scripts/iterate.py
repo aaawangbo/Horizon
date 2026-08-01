@@ -313,6 +313,7 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
         payload = {
             "model": model,
             "messages": messages,
+            "thinking": {"type": "disabled"},
             "temperature": 0.2,
             "max_tokens": 8192,
         }
