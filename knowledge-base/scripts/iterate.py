@@ -581,7 +581,15 @@ def run_iteration(vault: Path, feed_url: str, dry_run: bool) -> int:
     feed_text = fetch_text(feed_url)
     entries = parse_feed(feed_text)
     processed: dict[str, str] = state.setdefault("processed_entries", {})
-    entry = next((item for item in entries if processed.get(item.entry_id) != item.digest), None)
+    processed_digests = set(processed.values())
+    entry = next(
+        (
+            item
+            for item in entries
+            if processed.get(item.entry_id) != item.digest and item.digest not in processed_digests
+        ),
+        None,
+    )
     if entry is None:
         print("No unseen Horizon entry. Running lint only.")
         return print_lint(vault)
