@@ -1,0 +1,302 @@
+{
+  "ai": {
+    "provider": "deepseek",
+    "model": "deepseek-v4-flash",
+    "base_url": "https://api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "temperature": 0.2,
+    "max_tokens": 8192,
+    "throttle_sec": 1,
+    "languages": [
+      "zh"
+    ],
+    "analysis_concurrency": 3,
+    "enrichment_concurrency": 3
+  },
+  "processing": {
+    "profiles_dir": "profiles",
+    "default_profile": "ai-blogger",
+    "profile_settings": {
+      "ai-blogger": {
+        "threshold": 7.0,
+        "topic_dedup": true
+      }
+    }
+  },
+  "display": {
+    "icon_style": "emoji"
+  },
+  "sources": {
+    "github": [
+      {
+        "type": "repo_releases",
+        "owner": "openai",
+        "repo": "openai-python",
+        "enabled": true,
+        "profile": "ai-blogger"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "huggingface",
+        "repo": "transformers",
+        "enabled": true,
+        "profile": "ai-blogger"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "ollama",
+        "repo": "ollama",
+        "enabled": true,
+        "profile": "ai-blogger"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "vllm-project",
+        "repo": "vllm",
+        "enabled": true,
+        "profile": "ai-blogger"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "langchain-ai",
+        "repo": "langchain",
+        "enabled": true,
+        "profile": "ai-blogger"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "open-webui",
+        "repo": "open-webui",
+        "enabled": true,
+        "profile": "ai-blogger"
+      }
+    ],
+    "hackernews": {
+      "enabled": true,
+      "fetch_top_stories": 30,
+      "min_score": 100,
+      "profile": "ai-blogger"
+    },
+    "rss": [
+      {
+        "name": "OpenAI News",
+        "url": "https://openai.com/news/rss.xml",
+        "enabled": true,
+        "category": "official",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "Google DeepMind",
+        "url": "https://deepmind.google/blog/rss.xml",
+        "enabled": true,
+        "category": "official",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "Hugging Face Blog",
+        "url": "https://huggingface.co/blog/feed.xml",
+        "enabled": true,
+        "category": "official",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "Simon Willison",
+        "url": "https://simonwillison.net/atom/everything/",
+        "enabled": true,
+        "category": "analysis",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "arXiv cs.AI",
+        "url": "https://export.arxiv.org/rss/cs.AI",
+        "enabled": true,
+        "category": "research",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "arXiv cs.CL",
+        "url": "https://export.arxiv.org/rss/cs.CL",
+        "enabled": true,
+        "category": "research",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "量子位",
+        "url": "https://wechat2rss.xlab.app/feed/7131b577c61365cb47e81000738c10d872685908.xml",
+        "enabled": true,
+        "category": "chinese-ai-news",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "新智元",
+        "url": "https://wechat2rss.xlab.app/feed/ede30346413ea70dbef5d485ea5cbb95cca446e7.xml",
+        "enabled": true,
+        "category": "chinese-ai-news",
+        "profile": "ai-blogger"
+      },
+      {
+        "name": "GitHub Trending Daily",
+        "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml",
+        "enabled": true,
+        "category": "open-source",
+        "profile": "ai-blogger"
+      }
+    ],
+    "reddit": {
+      "enabled": true,
+      "subreddits": [
+        {
+          "subreddit": "MachineLearning",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 40,
+          "profile": "ai-blogger"
+        },
+        {
+          "subreddit": "LocalLLaMA",
+          "enabled": true,
+          "sort": "hot",
+          "time_filter": "day",
+          "fetch_limit": 15,
+          "min_score": 40,
+          "profile": "ai-blogger"
+        }
+      ],
+      "users": [],
+      "fetch_comments": 8
+    },
+    "twitter": {
+      "enabled": false,
+      "users": [],
+      "fetch_limit": 10,
+      "fetch_reply_text": false,
+      "max_replies_per_tweet": 3,
+      "max_tweets_to_expand": 10,
+      "reply_min_likes": 5,
+      "profile": "ai-blogger"
+    },
+    "telegram": {
+      "enabled": false,
+      "channels": []
+    },
+    "openbb": {
+      "enabled": false,
+      "watchlists": []
+    },
+    "ossinsight": {
+      "enabled": true,
+      "period": "past_24_hours",
+      "languages": [
+        "All",
+        "Python",
+        "TypeScript"
+      ],
+      "keywords": [
+        "AI",
+        "LLM",
+        "agent",
+        "machine learning"
+      ],
+      "min_stars": 30,
+      "max_items": 30,
+      "profile": "ai-blogger"
+    },
+    "gdelt": {
+      "enabled": false,
+      "query": "artificial intelligence",
+      "mode": "ArtList",
+      "max_records": 50,
+      "timespan": null,
+      "language": null,
+      "country": null,
+      "category": "industry",
+      "profile": "ai-blogger"
+    },
+    "google_news": {
+      "enabled": false,
+      "query": "artificial intelligence",
+      "language": "en",
+      "country": "US",
+      "ceid": null,
+      "max_results": 50,
+      "category": "industry",
+      "profile": "ai-blogger"
+    }
+  },
+  "collection": {
+    "time_window_hours": 30
+  },
+  "digest": {
+    "max_items": 20,
+    "profile_order": [
+      "ai-blogger",
+      "tech-news",
+      "tech-blog",
+      "finance-news"
+    ],
+    "category_groups": {
+      "official": {
+        "limit": 6,
+        "categories": [
+          "official"
+        ]
+      },
+      "research": {
+        "limit": 5,
+        "categories": [
+          "research"
+        ]
+      },
+      "analysis": {
+        "limit": 7,
+        "categories": [
+          "analysis",
+          "chinese-ai-news",
+          "open-source",
+          "industry"
+        ]
+      }
+    },
+    "default_group": "community-and-releases",
+    "default_group_limit": 8
+  },
+  "webhook": {
+    "enabled": false,
+    "url_env": "HORIZON_WEBHOOK_URL",
+    "delivery": "summary_and_items",
+    "overview_position": "last",
+    "platform": "feishu",
+    "layout": "collapsible",
+    "fallback_layout": "markdown",
+    "languages": [
+      "zh"
+    ],
+    "request_body": {
+      "msg_type": "interactive",
+      "card": {
+        "schema": "2.0",
+        "config": {
+          "wide_screen_mode": true
+        },
+        "header": {
+          "title": {
+            "tag": "plain_text",
+            "content": "#{message_title}"
+          },
+          "template": "blue"
+        },
+        "body": {
+          "elements": [
+            {
+              "tag": "markdown",
+              "content": "#{summary}"
+            }
+          ]
+        }
+      }
+    },
+    "headers": ""
+  }
+}
