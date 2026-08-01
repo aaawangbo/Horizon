@@ -203,7 +203,7 @@ def first_summary(text: str) -> str:
 
 
 def render_source(entry: FeedEntry) -> tuple[str, str]:
-    filename = f"{entry.date} {safe_filename(entry.title, 70)} [{entry.digest[:8]}].md"
+    filename = f"{entry.date} {safe_filename(entry.title, 70)} ({entry.digest[:8]}).md"
     rel_path = f"02-原始资料/Horizon日报/{filename}"
     identity = f"{entry.entry_id}:{entry.digest}".encode("utf-8")
     source_id = "horizon-" + hashlib.sha256(identity).hexdigest()[:16]
