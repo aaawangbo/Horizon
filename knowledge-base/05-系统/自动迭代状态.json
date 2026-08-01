@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "processed_entries": {},
-  "last_run": null,
-  "iteration_count": 0
+  "processed_entries": {
+    "https://thysrael.github.io/Horizon/2026/08/01/summary-zh.html": "c5dcc0d9aced9079390d44c9249c690a058a5af10807c9c2e01f205028d3be45"
+  },
+  "last_run": "2026-08-02T02:18:40+08:00",
+  "iteration_count": 1
 }
