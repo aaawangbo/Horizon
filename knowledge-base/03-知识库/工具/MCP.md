@@ -2,10 +2,11 @@
 type: tool
 status: growing
 created: 2026-08-01
-updated: 2026-08-01
+updated: 2026-08-02
 confidence: medium
 sources:
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (c5dcc0d9)]]"
+  - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
 tags:
   - mcp
   - agents
