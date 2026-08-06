@@ -2,12 +2,13 @@
 type: tool
 status: growing
 created: 2026-08-01
-updated: 2026-08-01
+updated: 2026-08-06
 confidence: medium
 sources:
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (c5dcc0d9)]]"
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (20f3ca65)]]"
+  - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
 tags:
   - mcp
   - agents
@@ -41,3 +42,5 @@ Simon 认为 MCP 工具比直接给 agent shell/curl 权限更易审计和控制
 - [[AI 博主内容系统]]
 - [[LLM Wiki]]
 - [[2026-08-01 AI 趋势综合]]
+- [[2026-08-06 AI 趋势综合]]
+- [[AI 安全事件]]

@@ -2,10 +2,11 @@
 type: tool
 status: seed
 created: 2026-08-02
-updated: 2026-08-02
+updated: 2026-08-06
 confidence: medium
 sources:
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
+  - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
 tags:
   - bytedance
   - video-generation
@@ -34,3 +35,4 @@ Seedance 是字节跳动推出的视频生成模型系列，最新版本为 Seed
 
 - [[AI 博主内容系统]]
 - [[DeepSeek]]
+- [[2026-08-06 AI 趋势综合]]

@@ -2,12 +2,13 @@
 type: tool
 status: growing
 created: 2026-08-01
-updated: 2026-08-01
+updated: 2026-08-06
 confidence: medium
 sources:
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (c5dcc0d9)]]"
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (20f3ca65)]]"
+  - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
 tags:
   - deepseek
   - llm
@@ -36,3 +37,4 @@ DeepSeek 是中国 AI 公司，以开源模型和低成本 API 著称。
 - [[LLM Wiki]]
 - [[AI 博主内容系统]]
 - [[2026-08-01 AI 趋势综合]]
+- [[2026-08-06 AI 趋势综合]]
