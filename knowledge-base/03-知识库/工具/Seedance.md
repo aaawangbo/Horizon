@@ -2,17 +2,19 @@
 type: tool
 status: growing
 created: 2026-08-02
-updated: 2026-08-06
+updated: 2026-08-07
 confidence: medium
 sources:
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
   - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
   - "[[2026-08-05 Horizon Summary- 2026-08-05 (ZH) (83ac2948)]]"
+  - "[[2026-08-07 Horizon Summary- 2026-08-07 (ZH) (1736a33d)]]"
 tags:
   - bytedance
   - video-generation
   - seedance
   - sand-ai
+  - meta
 ---
 
 # Seedance
@@ -44,8 +46,14 @@ Seedance 是字节跳动推出的视频生成模型系列，最新版本为 Seed
 - **定位**：通用全模态生成系统，可生成最多 15 秒含音频视频。
 - **本地运行**：Apple Silicon 可跑通 MLX 移植，但 115GB 下载和 45 分钟生成耗时。
 
+### Meta Muse Spark 1.2（2026-08-05 发布）
+- **定位**：面向编码的模型，但属于 Meta 生成模型系列，与视频生成无直接竞争，但反映 Meta 在生成 AI 的布局。
+- **定价**：标准版 $1.25/$4.25 每百万 token，贡献者版 $0.10/$0.20。
+- **注意**：Simon 测试认为相比 1.1 是小而实质的提升。
+
 ## 相关页面
 - [[AI 博主内容系统]]
 - [[DeepSeek]]
+- [[2026-08-07 AI 趋势综合]]
 - [[2026-08-06 AI 趋势综合]]
 - [[2026-08-05 AI 趋势综合]]
