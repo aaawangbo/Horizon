@@ -2,19 +2,22 @@
 type: tool
 status: growing
 created: 2026-08-02
-updated: 2026-08-07
+updated: 2026-08-11
 confidence: medium
 sources:
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
   - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
   - "[[2026-08-05 Horizon Summary- 2026-08-05 (ZH) (83ac2948)]]"
   - "[[2026-08-07 Horizon Summary- 2026-08-07 (ZH) (1736a33d)]]"
+  - "[[2026-08-11 Horizon Summary- 2026-08-11 (ZH) (b6971f89)]]"
 tags:
   - bytedance
   - video-generation
   - seedance
   - sand-ai
   - meta
+  - muse-glimmer
+  - tts
 ---
 
 # Seedance
@@ -51,9 +54,21 @@ Seedance 是字节跳动推出的视频生成模型系列，最新版本为 Seed
 - **定价**：标准版 $1.25/$4.25 每百万 token，贡献者版 $0.10/$0.20。
 - **注意**：Simon 测试认为相比 1.1 是小而实质的提升。
 
+### Meta Muse Glimmer（2026-08-10 发布）
+- **参数**：30B 多模态模型，Apache 2.0 许可。
+- **定位**：本地运行、智能体化任务完成、可靠工具调用与多步推理。
+- **社区实测**：Simon Willison 用 LM Studio 的 18.16GB 量化版在 128GB Mac 上跑了代码库探索和图片描述任务；另有用户称在 32GB Mac mini 上用 Ollama 可运行，但速度较慢。
+- **注意**：官方宣称在 DeepSearch QA、MCP-Atlas、τ-Bench、SWE-Bench 等基准上取得较好成功率，但需独立评测。
+
+### NVIDIA Magpie TTS（2026-08-10 发布）
+- **参数**：3.64 亿参数开源权重多语言 TTS。
+- **特点**：支持 12 种语言，首次音频延迟约 32ms，可自托管。
+- **注意**：具体基准、语音质量和语言覆盖细节需以官方模型卡为准。
+
 ## 相关页面
 - [[AI 博主内容系统]]
 - [[DeepSeek]]
+- [[2026-08-11 AI 趋势综合]]
 - [[2026-08-07 AI 趋势综合]]
 - [[2026-08-06 AI 趋势综合]]
 - [[2026-08-05 AI 趋势综合]]
