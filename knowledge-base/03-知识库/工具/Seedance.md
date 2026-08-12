@@ -2,7 +2,7 @@
 type: tool
 status: growing
 created: 2026-08-02
-updated: 2026-08-11
+updated: 2026-08-10
 confidence: medium
 sources:
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
@@ -10,6 +10,7 @@ sources:
   - "[[2026-08-05 Horizon Summary- 2026-08-05 (ZH) (83ac2948)]]"
   - "[[2026-08-07 Horizon Summary- 2026-08-07 (ZH) (1736a33d)]]"
   - "[[2026-08-11 Horizon Summary- 2026-08-11 (ZH) (b6971f89)]]"
+  - "[[2026-08-10 Horizon Summary- 2026-08-10 (ZH) (ef35896f)]]"
 tags:
   - bytedance
   - video-generation
@@ -18,6 +19,7 @@ tags:
   - meta
   - muse-glimmer
   - tts
+  - ai-for-science
 ---
 
 # Seedance
@@ -65,10 +67,19 @@ Seedance 是字节跳动推出的视频生成模型系列，最新版本为 Seed
 - **特点**：支持 12 种语言，首次音频延迟约 32ms，可自托管。
 - **注意**：具体基准、语音质量和语言覆盖细节需以官方模型卡为准。
 
+## AI for Science 进展
+
+### Evo 噬菌体设计（2026-08-10）
+- **事实**：研究者利用基因组语言模型 Evo 1 和 Evo 2，以裂解噬菌体 ΦX174 为模板，首次实现全基因组尺度噬菌体设计，16 个 AI 生成基因组产生存活噬菌体。
+- **来源**：Reddit 转述，原始论文待核实。
+- **推断**：基因组语言模型可能直接生成功能序列，影响合成生物学。
+- **待验证**：原始论文细节、存活噬菌体功能与安全性。
+
 ## 相关页面
 - [[AI 博主内容系统]]
 - [[DeepSeek]]
 - [[2026-08-11 AI 趋势综合]]
+- [[2026-08-10 AI 趋势综合]]
 - [[2026-08-07 AI 趋势综合]]
 - [[2026-08-06 AI 趋势综合]]
 - [[2026-08-05 AI 趋势综合]]
