@@ -2,8 +2,8 @@ name: Iterate AI Knowledge Base
 
 on:
   schedule:
-    # 09:10 Asia/Shanghai, after the 08:30 Horizon digest.
-    - cron: "10 1 * * *"
+    # 07:00 Asia/Shanghai, after the 06:30 Horizon digest (done by ~06:55).
+    - cron: "0 23 * * *"
   workflow_dispatch:
 
 permissions:

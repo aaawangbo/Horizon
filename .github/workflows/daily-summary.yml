@@ -2,8 +2,8 @@ name: Daily AI Blogger Horizon
 
 on:
   schedule:
-    # GitHub cron uses UTC. 00:30 UTC = 08:30 Asia/Shanghai.
-    - cron: "30 0 * * *"
+    # GitHub cron uses UTC. 22:30 UTC = 06:30 Asia/Shanghai (done by ~06:55).
+    - cron: "30 22 * * *"
   workflow_dispatch:
 
 jobs:
