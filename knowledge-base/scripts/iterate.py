@@ -47,6 +47,22 @@ MAX_WRITE_CHARS = 12_000
 MAX_TOTAL_WRITE_CHARS = 40_000
 MAX_CONTEXT_CHARS = 70_000
 
+TOKEN_USAGE: dict[str, int] = {
+    "calls": 0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+}
+
+
+def format_token_usage(usage: dict[str, int]) -> str:
+    return (
+        f"{usage.get('calls', 0)} 次调用，"
+        f"输入 {usage.get('prompt_tokens', 0)} / "
+        f"输出 {usage.get('completion_tokens', 0)} / "
+        f"合计 {usage.get('total_tokens', 0)} tokens"
+    )
+
 
 def shanghai_now() -> datetime:
     return datetime.now(timezone(timedelta(hours=8)))
@@ -529,6 +545,16 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
         choice = result["choices"][0]
         content = choice["message"]["content"].strip()
         finish_reason = choice.get("finish_reason", "")
+        usage = result.get("usage") or {}
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            TOKEN_USAGE[key] += int(usage.get(key) or 0)
+        TOKEN_USAGE["calls"] += 1
+        print(
+            f"DeepSeek API call #{TOKEN_USAGE['calls']}: "
+            f"prompt={usage.get('prompt_tokens', 0)}, "
+            f"completion={usage.get('completion_tokens', 0)}, "
+            f"total={usage.get('total_tokens', 0)} tokens"
+        )
         return content, finish_reason
 
     messages = [system_message, {"role": "user", "content": prompt}]
@@ -707,7 +733,13 @@ def rebuild_source_registry(vault: Path) -> None:
     atomic_write(vault / "05-系统" / "来源登记.md", "\n".join(lines))
 
 
-def append_log(vault: Path, entry: FeedEntry, summary: str, paths: list[str]) -> None:
+def append_log(
+    vault: Path,
+    entry: FeedEntry,
+    summary: str,
+    paths: list[str],
+    usage: dict[str, int] | None = None,
+) -> None:
     path = vault / "05-系统" / "日志.md"
     existing = path.read_text(encoding="utf-8").rstrip() if path.exists() else "# 日志"
     timestamp = shanghai_now().strftime("%Y-%m-%d %H:%M")
@@ -720,6 +752,8 @@ def append_log(vault: Path, entry: FeedEntry, summary: str, paths: list[str]) ->
         f"- {summary.strip() or '完成一次受控自动迭代。'}",
         f"- 写入：{'、'.join(links) if links else '无知识页变更'}",
     ]
+    if usage and usage.get("total_tokens"):
+        block.append(f"- Token：{format_token_usage(usage)}")
     atomic_write(path, existing + "\n".join(block))
 
 
@@ -813,6 +847,7 @@ def run_iteration(vault: Path, feed_url: str, dry_run: bool) -> int:
     if dry_run:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         print(f"Dry run: would write source plus {len(ai_writes)} AI file(s)")
+        print(f"DeepSeek token 用量：{format_token_usage(TOKEN_USAGE)}")
         return 0
 
     if not source_path.exists():
@@ -825,16 +860,24 @@ def run_iteration(vault: Path, feed_url: str, dry_run: bool) -> int:
     summary = str(result.get("summary", "完成一次受控自动迭代。"))
     if fallback_used:
         summary += "（使用了 JSON 降级兜底）"
-    append_log(vault, entry, summary, [source_rel, *[path for path, _ in ai_writes]])
+    append_log(vault, entry, summary, [source_rel, *[path for path, _ in ai_writes]], usage=TOKEN_USAGE)
     processed[entry.entry_id] = entry.digest
     state["last_run"] = shanghai_now().isoformat(timespec="seconds")
     state["iteration_count"] = int(state.get("iteration_count", 0)) + 1
+    lifetime = state.setdefault(
+        "token_usage_total",
+        {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    )
+    for key in ("calls", "prompt_tokens", "completion_tokens", "total_tokens"):
+        lifetime[key] = int(lifetime.get(key, 0)) + TOKEN_USAGE[key]
     atomic_write(state_path, json.dumps(state, ensure_ascii=False, indent=2))
 
     lint_status = print_lint(vault)
     if lint_status:
         raise RuntimeError("Knowledge-base lint failed; workflow will not commit these changes")
     print(f"Iteration complete for: {entry.title}")
+    print(f"DeepSeek token 用量（本次）：{format_token_usage(TOKEN_USAGE)}")
+    print(f"DeepSeek token 用量（累计）：{format_token_usage(lifetime)}")
     return 0
 
 
