@@ -2,7 +2,7 @@
 type: tool
 status: growing
 created: 2026-08-01
-updated: 2026-08-14
+updated: 2026-08-13
 confidence: medium
 sources:
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (c5dcc0d9)]]"
@@ -10,6 +10,7 @@ sources:
   - "[[2026-08-01 Horizon Summary- 2026-08-01 (ZH) (20f3ca65)]]"
   - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
   - "[[2026-08-14 Horizon Summary- 2026-08-14 (ZH) (af99a363)]]"
+  - "[[2026-08-13 Horizon Summary- 2026-08-13 (ZH) (de59766c)]]"
 tags:
   - deepseek
   - llm
@@ -38,7 +39,8 @@ DeepSeek 是中国 AI 公司，以开源模型和低成本 API 著称。
 
 - **参数**：1.7T 总参数（此前资料称 1.6T，需核实），约 893GB 权重。
 - **开源**：Hugging Face 上放出开源权重，API 已上线 OpenRouter 等渠道。
-- **实测**：Simon Willison 观察到同一提示在低/中/高推理强度下生成图像风格差异显著，此前未在其他模型上见过。
+- **OpenRouter 上线**（2026-08-12）：API-only 形式出现，定价输入 $0.435/M token、输出 $0.87/M token，上下文长度 104 万 token，最大输出 38.4 万 token。无官方公告页面，信息来自 OpenRouter 与第三方基准。
+- **社区实测**：有开发者称用于流量模拟/物理引擎任务约花费 $12.50 处理 2B（50% 缓存命中）获得明显改进；Simon Willison 测试渲染器时发现小篮子未出现在正确位置。
 - **注意**：官方基准尚未发布，网上流传的基准表来自非正式渠道（微信群、Reddit 已删帖、HN 转贴），可信度待验证。
 
 ### DeepSeek Harness（2026-08-13 预览）
@@ -55,3 +57,4 @@ DeepSeek 是中国 AI 公司，以开源模型和低成本 API 著称。
 - [[2026-08-01 AI 趋势综合]]
 - [[2026-08-06 AI 趋势综合]]
 - [[2026-08-14 AI 趋势综合]]
+- [[2026-08-13 AI 趋势综合]]
