@@ -1,5 +1,10 @@
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
+.obsidian/app.json
+.obsidian/core-plugins.json
+.obsidian/appearance.json
+.obsidian/graph.json
+.obsidian/themes/
 .trash/
 .DS_Store
 Thumbs.db

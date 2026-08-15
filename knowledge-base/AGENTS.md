@@ -11,6 +11,7 @@
 - AI 应用、产品和商业化
 - 开源模型、框架与开发工具
 - AI 研究趋势和关键人物/机构
+- 嵌入式系统、边缘计算与硬件（MCU、RTOS、SoC、传感器、物联网）
 - 内容创作方法、受众需求与选题表现
 
 ## 2. 三层边界
@@ -95,7 +96,7 @@ tags:
 
 ## 8. Lint：自我检查
 
-每日自动检查：
+每次运行自动检查：
 
 - 断开的双向链接和重名页面
 - 缺少必要字段或来源的知识页
@@ -129,5 +130,5 @@ tags:
 ## [YYYY-MM-DD HH:mm] ingest | 来源标题
 ## [YYYY-MM-DD HH:mm] query | 问题摘要
 ## [YYYY-MM-DD HH:mm] lint | 检查摘要
-## [YYYY-MM-DD HH:mm] iterate | 自动迭代摘要
+## [YYYY-MM-DD HH:mm] iterate | 来源标题
 ```
