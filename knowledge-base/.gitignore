@@ -5,6 +5,9 @@
 .obsidian/appearance.json
 .obsidian/graph.json
 .obsidian/themes/
+.obsidian/plugins/
+.cache/
 .trash/
 .DS_Store
 Thumbs.db
+__pycache__/

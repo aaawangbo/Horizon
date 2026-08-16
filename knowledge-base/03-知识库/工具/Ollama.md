@@ -1,8 +1,8 @@
 ---
-type: concept
+type: tool
 status: seed
 created: 2026-08-15
-updated: 2026-08-15
+updated: 2026-08-16
 confidence: high
 sources:
   - "[[2026-08-05 Horizon Summary- 2026-08-05 (ZH) (83ac2948)]]"

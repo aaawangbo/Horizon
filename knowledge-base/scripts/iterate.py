@@ -25,15 +25,26 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Optional
 
 
 DEFAULT_FEED_URL = "https://aaawangbo.github.io/Horizon/feed-zh.xml"
+OLLAMA_EMBED_URL = os.environ.get("OLLAMA_EMBED_URL", "http://localhost:11434/api/embed")
+EMBED_MODEL = os.environ.get("EMBED_MODEL", "bge-m3")
+CONTEXT_TOP_PAGES = int(os.environ.get("CONTEXT_TOP_PAGES", "6"))
 ATOM_NS = "{http://www.w3.org/2005/Atom}"
 ALLOWED_AI_PREFIXES = (
     "01-收件箱/规则提案/",
     "03-知识库/",
     "04-内容工厂/自动选题/",
+)
+# Knowledge pages are prose Markdown; raw script/iframe markup or inline
+# event handlers are injection attempts, not legitimate content.
+DANGEROUS_HTML_PATTERN = re.compile(
+    r"<\s*(script|iframe|object|embed|style)\b"
+    r"|javascript\s*:"
+    r"|\bon(error|load|click|mouseover)\s*=",
+    re.IGNORECASE,
 )
 REQUIRED_KNOWLEDGE_FIELDS = (
     "type",
@@ -179,7 +190,15 @@ def parse_feed(xml_text: str) -> list[FeedEntry]:
 def is_relevant(entry: FeedEntry) -> bool:
     """Check if an entry contains AI or embedded systems keywords."""
     text = (entry.title + "\n" + entry.content).lower()
-    return any(kw in text for kw in RELEVANCE_KEYWORDS)
+    for keyword in RELEVANCE_KEYWORDS:
+        # ASCII keywords need word boundaries: bare "ai" would otherwise
+        # match inside words like "remain" or "training".
+        if keyword.isascii():
+            if re.search(rf"\b{re.escape(keyword)}\b", text):
+                return True
+        elif keyword in text:
+            return True
+    return False
 
 
 def safe_filename(value: str, limit: int = 90) -> str:
@@ -202,7 +221,11 @@ def atomic_write(path: Path, content: str) -> None:
     ) as handle:
         handle.write(normalized)
         temporary = Path(handle.name)
-    temporary.replace(path)
+    try:
+        temporary.replace(path)
+    except OSError:
+        temporary.unlink(missing_ok=True)
+        raise
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
@@ -280,22 +303,130 @@ tags:
     return rel_path, content
 
 
-def collect_context(vault: Path) -> str:
-    chunks: list[str] = []
+def _embed_texts(texts: list[str], role: str) -> list[list[float]]:
+    """Embed texts locally via Ollama; raises on any failure."""
+    payload = json.dumps(
+        {"model": EMBED_MODEL, "input": [f"{role}: {t[:8000]}" for t in texts]}
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        OLLAMA_EMBED_URL, data=payload, headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(request, timeout=180) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    embeddings = data.get("embeddings") or []
+    if len(embeddings) != len(texts):
+        raise RuntimeError(f"embedding count mismatch: {len(embeddings)} != {len(texts)}")
+    return embeddings
+
+
+def _cosine(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = sum(x * x for x in a) ** 0.5
+    norm_b = sum(x * x for x in b) ** 0.5
+    return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0
+
+
+def _select_relevant_pages(
+    vault: Path, query: str, top_n: int
+) -> Optional[list[tuple[str, str]]]:
+    """Rank knowledge pages against the query using local bge-m3 embeddings.
+
+    Returns the top-N (rel_path, text) pages. Page vectors are cached in
+    .cache/embeddings.json keyed by path+mtime, so only changed pages are
+    re-embedded. Returns None when local embedding is unavailable — the
+    caller then falls back to sending all pages.
+    """
+    pages: list[tuple[str, str, str]] = []  # (fingerprint, rel_path, text)
+    for path in (vault / "03-知识库").rglob("*.md"):
+        if "每日综合" in path.parts:
+            continue
+        rel = path.relative_to(vault).as_posix()
+        fingerprint = f"{rel}:{path.stat().st_mtime_ns}"
+        pages.append((fingerprint, rel, path.read_text(encoding="utf-8")))
+
+    cache_path = vault / ".cache" / "embeddings.json"
+    cache: dict[str, list[float]] = {}
+    try:
+        if cache_path.exists():
+            cache = json.loads(cache_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        cache = {}
+
+    todo = [page for page in pages if page[0] not in cache]
+    try:
+        for i in range(0, len(todo), 8):
+            batch = todo[i : i + 8]
+            for page, vector in zip(batch, _embed_texts([p[2] for p in batch], "passage")):
+                cache[page[0]] = vector
+        query_vector = _embed_texts([query[:8000]], "query")[0]
+    except (OSError, RuntimeError, ValueError, KeyError, IndexError) as exc:
+        print(
+            f"WARNING local embedding unavailable ({exc}); "
+            f"falling back to full-context mode",
+            file=sys.stderr,
+        )
+        return None
+    finally:
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            cache_path.write_text(json.dumps(cache), encoding="utf-8")
+        except OSError:
+            pass
+
+    ranked = sorted(
+        pages, key=lambda page: -_cosine(query_vector, cache.get(page[0], []))
+    )
+    return [(rel, text) for _, rel, text in ranked[:top_n]]
+
+
+def collect_context(vault: Path, entry: Optional[FeedEntry] = None) -> str:
     index_path = vault / "05-系统" / "索引.md"
-    candidates = [index_path] if index_path.exists() else []
-    candidates.extend(sorted((vault / "03-知识库").rglob("*.md")))
-    used = 0
-    for path in candidates:
+    knowledge: list[tuple[str, str, str]] = []  # (sort_key, rel_path, text)
+    for path in (vault / "03-知识库").rglob("*.md"):
         if "每日综合" in path.parts:
             continue
         text = path.read_text(encoding="utf-8")
-        rel = path.relative_to(vault).as_posix()
+        metadata = parse_frontmatter(text)
+        sort_key = metadata.get("updated") or metadata.get("created") or ""
+        knowledge.append((sort_key, path.relative_to(vault).as_posix(), text))
+    # Recently updated pages enter the context first, so pages late in the
+    # alphabetical order are not silently starved once the vault grows past
+    # the context cap.
+    knowledge.sort(key=lambda item: item[0], reverse=True)
+
+    selected: Optional[list[tuple[str, str]]] = None
+    if entry is not None:
+        query = f"{entry.title}\n{entry.content[:4000]}"
+        selected = _select_relevant_pages(vault, query, CONTEXT_TOP_PAGES)
+        if selected is not None:
+            print(
+                f"Context: local {EMBED_MODEL} retrieval picked "
+                f"{len(selected)}/{len(knowledge)} page(s): "
+                + ", ".join(rel for rel, _ in selected)
+            )
+    if selected is None:
+        selected = [(rel, text) for _, rel, text in knowledge]
+
+    candidates: list[tuple[str, str]] = []
+    if index_path.exists():
+        candidates.append(("05-系统/索引.md", index_path.read_text(encoding="utf-8")))
+    candidates.extend(selected)
+
+    chunks: list[str] = []
+    dropped: list[str] = []
+    used = 0
+    for rel, text in candidates:
         chunk = f"\n\n===== {rel} =====\n{text}"
         if used + len(chunk) > MAX_CONTEXT_CHARS:
-            break
+            dropped.append(rel)
+            continue
         chunks.append(chunk)
         used += len(chunk)
+    if dropped:
+        print(
+            f"Context: kept {len(candidates) - len(dropped)} page(s) ({used} chars), "
+            f"dropped {len(dropped)} beyond cap: {', '.join(dropped)}"
+        )
     return "".join(chunks)
 
 
@@ -497,7 +628,7 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
     model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
     base_url = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/")
     schema = (vault / "AGENTS.md").read_text(encoding="utf-8")
-    context = collect_context(vault)
+    context = collect_context(vault, entry)
     source_stem = Path(source_rel).stem
     prompt = f"""你是中文 AI 与嵌入式技术博主知识库的受控维护者。优先关注 AI 大模型、智能体、AI 应用与产品，以及嵌入式系统、边缘计算、物联网硬件等交叉领域。
 
@@ -567,7 +698,8 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
             with urllib.request.urlopen(request, timeout=180) as response:
                 result = json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")[:1000]
+            detail = exc.read().decode("utf-8", errors="replace")[:300]
+            detail = re.sub(r"sk-[A-Za-z0-9_\-]+", "sk-***", detail)
             raise RuntimeError(f"DeepSeek API returned HTTP {exc.code}: {detail}") from exc
         choice = result["choices"][0]
         content = choice["message"]["content"].strip()
@@ -651,6 +783,8 @@ def validate_ai_result(result: dict[str, Any], vault: Path) -> list[tuple[str, s
             raise ValueError(f"Empty content for: {rel}")
         if len(content) > MAX_WRITE_CHARS:
             raise ValueError(f"Content too large for: {rel}")
+        if DANGEROUS_HTML_PATTERN.search(content):
+            raise ValueError(f"Content contains disallowed HTML/script markup: {rel}")
         total_chars += len(content)
         if total_chars > MAX_TOTAL_WRITE_CHARS:
             raise ValueError(f"AI write payload exceeds {MAX_TOTAL_WRITE_CHARS} characters")
@@ -788,13 +922,15 @@ def lint_vault(vault: Path) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     files = [path for path in vault.rglob("*.md") if ".obsidian" not in path.parts]
-    by_stem: dict[str, list[Path]] = defaultdict(list)
+    # README.md resolves as a link target but is exempt from duplicate-name
+    # detection, because one README per folder is by design.
+    all_stems: dict[str, list[Path]] = defaultdict(list)
     for path in files:
-        if path.name != "README.md":
-            by_stem[path.stem].append(path)
-    for stem, matches in by_stem.items():
-        if len(matches) > 1:
-            errors.append(f"重名页面：{stem} -> {', '.join(str(p.relative_to(vault)) for p in matches)}")
+        all_stems[path.stem].append(path)
+    for stem, matches in all_stems.items():
+        non_readme = [path for path in matches if path.name != "README.md"]
+        if len(non_readme) > 1:
+            errors.append(f"重名页面：{stem} -> {', '.join(str(p.relative_to(vault)) for p in non_readme)}")
 
     inbound = Counter()
     link_pattern = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
@@ -805,7 +941,7 @@ def lint_vault(vault: Path) -> tuple[list[str], list[str]]:
         for raw_target in link_pattern.findall(scan_text):
             target = raw_target.strip()
             target_stem = Path(target.replace("\\", "/")).stem
-            if target_stem not in by_stem:
+            if target_stem not in all_stems:
                 errors.append(f"断链：{path.relative_to(vault)} -> [[{target}]]")
             else:
                 inbound[target_stem] += 1
@@ -930,7 +1066,27 @@ def run_iteration(vault: Path, feed_url: str, dry_run: bool, max_entries: int) -
         print("No unseen relevant Horizon entry. Running lint only.")
         return print_lint(vault)
 
-    selected = unseen[:max_entries]
+    # One synthesis per calendar day: upstream entry IDs have switched
+    # domains before, which used to ingest the same daily digest twice.
+    unique_entries: list[FeedEntry] = []
+    seen_dates: set[str] = set()
+    same_day_duplicates: list[FeedEntry] = []
+    for item in unseen:  # feed order: newest first
+        if item.date in seen_dates:
+            same_day_duplicates.append(item)
+        else:
+            seen_dates.add(item.date)
+            unique_entries.append(item)
+    for item in same_day_duplicates:
+        processed[item.entry_id] = item.digest
+    if same_day_duplicates:
+        print(
+            f"Skipped {len(same_day_duplicates)} same-day duplicate(s): "
+            + "; ".join(f"{item.title} [{item.date}]" for item in same_day_duplicates)
+        )
+
+    selected = unique_entries[:max_entries]
+    selected.sort(key=lambda item: item.updated)  # process oldest first
     print(f"Selected {len(selected)} relevant entr{'y' if len(selected) == 1 else 'ies'} out of {len(unseen)} unseen")
 
     iteration_summaries: list[tuple[FeedEntry, str]] = []
@@ -942,7 +1098,11 @@ def run_iteration(vault: Path, feed_url: str, dry_run: bool, max_entries: int) -
             existing_id = parse_frontmatter(source_path.read_text(encoding="utf-8")).get("source_id")
             incoming_id = parse_frontmatter(source_content).get("source_id")
             if existing_id != incoming_id:
-                raise RuntimeError(f"Immutable source path collision: {source_rel}")
+                # One collision must not cost the whole run: skip and continue.
+                message = f"Immutable source path collision, skipped: {source_rel}"
+                print(f"WARNING {message}", file=sys.stderr)
+                append_log(vault, entry, message, [])
+                continue
 
         try:
             result = deepseek_update(entry, source_rel, vault)
@@ -953,6 +1113,13 @@ def run_iteration(vault: Path, feed_url: str, dry_run: bool, max_entries: int) -
             result = fallback_writes(entry, source_rel)
             fallback_used = bool(result.pop("_fallback", False))
             ai_writes = validate_ai_result(result, vault)
+        except (RuntimeError, OSError, KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+            # Transient API/network failure: leave the entry unseen so the
+            # next run retries it, and keep iterating remaining entries.
+            message = f"处理失败，已跳过并保留待下次重试：{exc}"
+            print(f"WARNING {message}", file=sys.stderr)
+            append_log(vault, entry, message, [])
+            continue
 
         if dry_run:
             print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -1013,7 +1180,7 @@ def main() -> int:
         help="Horizon Atom feed URL",
     )
     parser.add_argument("--auto", action="store_true", help="Run controlled iterations")
-    parser.add_argument("--lint", action="store_true", help="Check the vault without editing")
+    parser.add_argument("--lint", action="store_true", help="Lint the vault and refresh the health report (writes 05-系统/知识库健康检查.md)")
     parser.add_argument("--dry-run", action="store_true", help="Call the model but do not write")
     parser.add_argument(
         "--max-entries",
