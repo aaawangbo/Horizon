@@ -22,7 +22,7 @@ flowchart LR
 
 ## 自动迭代
 
-GitHub Actions 每周一北京时间 09:10 执行一次：
+GitHub Actions 每周一北京时间 06:10 执行一次（八点前完成）：
 
 1. 读取 Horizon 中文 Atom Feed，筛选 AI 与嵌入式相关条目（最多 20 条）。
 2. 保存未处理日报到不可覆盖的原始资料层。
