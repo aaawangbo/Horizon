@@ -6,6 +6,7 @@ updated: 2026-08-14
 confidence: medium
 sources:
   - "[[2026-08-14 Horizon Summary- 2026-08-14 (ZH) (af99a363)]]"
+  - "[[2026-08-14 Horizon Summary- 2026-08-14 (ZH) (b27a4e10)]]"
 tags:
   - gemini
   - google-deepmind

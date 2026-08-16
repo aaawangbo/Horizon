@@ -2,7 +2,7 @@
 type: tool
 status: growing
 created: 2026-08-02
-updated: 2026-08-10
+updated: 2026-08-12
 confidence: medium
 sources:
   - "[[2026-08-02 Horizon Summary- 2026-08-02 (ZH) (b0564d1c)]]"
@@ -11,6 +11,7 @@ sources:
   - "[[2026-08-07 Horizon Summary- 2026-08-07 (ZH) (1736a33d)]]"
   - "[[2026-08-11 Horizon Summary- 2026-08-11 (ZH) (b6971f89)]]"
   - "[[2026-08-10 Horizon Summary- 2026-08-10 (ZH) (ef35896f)]]"
+  - "[[2026-08-12 Horizon Summary- 2026-08-12 (ZH) (eac950a7)]]"
 tags:
   - bytedance
   - video-generation
@@ -33,6 +34,11 @@ Seedance 是字节跳动推出的视频生成模型系列，最新版本为 Seed
 - **官方宣传**：主打“一次性成片”（one-take creation）和“灵活参考”（flexible referencing）。
 - **定位**：面向需要高动态动作和特效镜头的视频创作场景。
 - **注意**：具体量化指标、开放渠道、价格和限制条件尚未确认，属官方宣传而非独立验证。
+
+## 近期动态
+
+- **Seedance 2.0 fast 降价**（2026-08-11）：据新智元报道，Seedance 2.0 fast 大幅降价至 0.6 元/秒，被描述为高性价比选择。具体计费单位、生效时间等细节待确认。
+- **Seedance 2.5 抢注热**（2026-08-11）：新智元报道称 Seedance 2.5 引发全网挤爆、抢注热潮，但具体新能力未披露。
 
 ## 社区讨论
 
@@ -83,3 +89,4 @@ Seedance 是字节跳动推出的视频生成模型系列，最新版本为 Seed
 - [[2026-08-07 AI 趋势综合]]
 - [[2026-08-06 AI 趋势综合]]
 - [[2026-08-05 AI 趋势综合]]
+- [[2026-08-12 AI 趋势综合]]

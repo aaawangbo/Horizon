@@ -2,10 +2,11 @@
 type: tool
 status: seed
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-08-12
 confidence: medium
 sources:
   - "[[2026-08-11 Horizon Summary- 2026-08-11 (ZH) (b6971f89)]]"
+  - "[[2026-08-12 Horizon Summary- 2026-08-12 (ZH) (eac950a7)]]"
 tags:
   - vllm
   - inference
@@ -37,4 +38,5 @@ vLLM 是一个高吞吐量、内存高效的 LLM 推理与服务引擎，支持 
 - [[DeepSeek]]
 - 同类本地推理工具：[[Ollama]]
 - [[2026-08-11 AI 趋势综合]]
+- [[2026-08-12 AI 趋势综合]]
 - [[AI 博主内容系统]]

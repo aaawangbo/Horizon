@@ -2,11 +2,12 @@
 type: tool
 status: seed
 created: 2026-08-15
-updated: 2026-08-16
+updated: 2026-08-14
 confidence: high
 sources:
   - "[[2026-08-05 Horizon Summary- 2026-08-05 (ZH) (83ac2948)]]"
   - "[[2026-08-11 Horizon Summary- 2026-08-11 (ZH) (b6971f89)]]"
+  - "[[2026-08-14 Horizon Summary- 2026-08-14 (ZH) (b27a4e10)]]"
 tags:
   - llm
   - local-inference
@@ -24,6 +25,7 @@ Ollama 是一个开源的本地大模型运行工具，提供简洁的 CLI 和 A
 
 - **Ollama v0.32.6-rc0**（2026-08-05）：优化苹果 GPU 推测解码速度，但暂时移除了图像生成功能。
 - **Ollama v0.32.7**（2026-08-10）：新增 Muse Glimmer 模型支持，仅限 Apple Silicon MLX 引擎。
+- **Ollama v0.32.11**（2026-08-14）：新增对 DeepSeek Harness（`ollama launch dsh`）和 Meta Muse Code（`ollama launch muse`）的支持；OpenAI 兼容 Responses API 支持联网搜索；Muse Glimmer 模板更新。
 
 ## 注意事项
 
@@ -34,3 +36,5 @@ Ollama 是一个开源的本地大模型运行工具，提供简洁的 CLI 和 A
 ## 相关页面
 
 - [[LLM Wiki]]
+- [[DeepSeek]]
+- [[2026-08-14 AI 趋势综合]]
