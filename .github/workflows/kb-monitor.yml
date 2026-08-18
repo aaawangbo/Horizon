@@ -1,0 +1,86 @@
+name: Daily Knowledge Base Monitor
+
+on:
+  schedule:
+    # Every day 09:00 Asia/Shanghai (01:00 UTC).
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Check workflow status and lint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          echo "## 知识库监控报告" > report.md
+          echo "" >> report.md
+          ALERT=0
+
+          gh label create "auto-monitor" --color "FBCA04" --if-not-exists 2>/dev/null || true
+
+          for WF in "Weekly AI Blogger Horizon" "Iterate AI Knowledge Base"; do
+            echo "### $WF" >> report.md
+            echo "" >> report.md
+            RUNS=$(gh run list --workflow "$WF" --limit 3 \
+              --json status,conclusion,createdAt,displayTitle \
+              --jq '.[] | "- \(.createdAt[:10]) \(.status)/\(.conclusion // "running") \(.displayTitle)"')
+            echo "$RUNS" >> report.md
+            echo "" >> report.md
+            FAILED=$(gh run list --workflow "$WF" --limit 3 \
+              --json conclusion --jq '[.[] | select(.conclusion == "failure")] | length')
+            if [ "$FAILED" -gt 0 ]; then
+              ALERT=1
+              echo "⚠️ $WF 近 3 次运行中有 $FAILED 次失败" >> report.md
+            fi
+          done
+
+          echo "### Lint 检查" >> report.md
+          echo "" >> report.md
+          cd knowledge-base
+          python scripts/iterate.py --lint > ../lint.txt 2>&1 || true
+          cd ..
+          echo '```' >> report.md
+          cat lint.txt >> report.md
+          echo '```' >> report.md
+          echo "" >> report.md
+
+          if grep -q "^ERROR" lint.txt; then
+            ALERT=1
+            echo "⚠️ Lint 发现错误" >> report.md
+          fi
+
+          cat report.md
+
+          if [ "$ALERT" = "1" ]; then
+            BODY=$(cat report.md)
+            ISSUE=$(gh issue list --state open --label "auto-monitor" --limit 1 --json number --jq '.[0].number // empty')
+            if [ -n "$ISSUE" ]; then
+              gh issue comment "$ISSUE" --body "$BODY"
+            else
+              gh issue create --title "⚠️ 知识库监控告警" --label "auto-monitor" --body "$BODY"
+            fi
+            echo "::warning::Issues detected, see report above"
+          else
+            for ISSUE in $(gh issue list --state open --label "auto-monitor" --json number --jq '.[].number'); do
+              gh issue close "$ISSUE" --comment "✅ 所有系统正常，自动关闭。"
+            done
+            echo "::notice::All systems healthy"
+          fi

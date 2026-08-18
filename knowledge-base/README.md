@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    A["Horizon 每日采集"] --> B["原始资料，只追加"]
+    A["Horizon 每周采集"] --> B["原始资料，只追加"]
     B --> C["DeepSeek 提炼与交叉关联"]
     C --> D["主题、人物、工具知识页"]
     D --> E["选题池与内容草稿"]
@@ -22,7 +22,7 @@ flowchart LR
 
 ## 自动迭代
 
-GitHub Actions 每周一北京时间 06:10 执行一次（八点前完成）：
+GitHub Actions 每周一北京时间 06:00 先执行 Horizon 采集，06:10 执行知识库迭代。每天 09:00 自动监控运行状态，异常发 Issue 提醒：
 
 1. 读取 Horizon 中文 Atom Feed，筛选 AI 与嵌入式相关条目（最多 20 条）。
 2. 保存未处理日报到不可覆盖的原始资料层。
