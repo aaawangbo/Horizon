@@ -57,8 +57,8 @@ REQUIRED_KNOWLEDGE_FIELDS = (
 MAX_WRITES = 6
 MAX_WRITE_CHARS = 12_000
 MAX_TOTAL_WRITE_CHARS = 40_000
-MAX_CONTEXT_CHARS = 35_000
-MAX_KNOWLEDGE_PAGE_CHARS = 2500
+MAX_CONTEXT_CHARS = 50_000
+MAX_KNOWLEDGE_PAGE_CHARS = 5000
 DEFAULT_MAX_ENTRIES = 20
 
 RELEVANCE_KEYWORDS = (
@@ -665,7 +665,7 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
 - 来源记录：[[{source_stem}]]
 
 新日报正文：
-{entry.content[:20000]}
+{entry.content[:40000]}
 """
     system_message = {
         "role": "system",
@@ -681,7 +681,7 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
             "messages": messages,
             "thinking": {"type": "disabled"},
             "temperature": 0.2,
-            "max_tokens": 4096,
+            "max_tokens": 8192,
         }
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
@@ -748,7 +748,7 @@ def deepseek_update(entry: FeedEntry, source_rel: str, vault: Path) -> dict[str,
             )
         messages = [system_message, {"role": "user", "content": prompt}]
         if content:
-            messages.append({"role": "assistant", "content": content[:12_000]})
+            messages.append({"role": "assistant", "content": content[:24_000]})
         messages.append({"role": "user", "content": repair_request})
         content, finish_reason = request_completion(messages, json_mode=False)
     raise AssertionError("unreachable")
