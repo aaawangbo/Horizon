@@ -29,40 +29,53 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -eu
+          set +e  # Don't abort on first error; collect all results
           echo "## 知识库监控报告" > report.md
+          echo "" >> report.md
+          echo "检查时间：$(date -u '+%Y-%m-%d %H:%M UTC')" >> report.md
           echo "" >> report.md
           ALERT=0
 
           gh label create "auto-monitor" --color "FBCA04" --if-not-exists 2>/dev/null || true
 
-          for WF in "Weekly AI Blogger Horizon" "Iterate AI Knowledge Base"; do
+          # Use workflow file paths (not display names) for reliability
+          for WF in "daily-summary.yml" "knowledge-base-iterate.yml"; do
             echo "### $WF" >> report.md
             echo "" >> report.md
             RUNS=$(gh run list --workflow "$WF" --limit 3 \
               --json status,conclusion,createdAt,displayTitle \
-              --jq '.[] | "- \(.createdAt[:10]) \(.status)/\(.conclusion // "running") \(.displayTitle)"')
-            echo "$RUNS" >> report.md
+              --jq '.[] | "- \(.createdAt[:10]) \(.status)/\(.conclusion // "running") \(.displayTitle)"' 2>&1) || true
+            if [ -z "$RUNS" ] || echo "$RUNS" | grep -qi "error\|not found"; then
+              echo "- (无法获取运行记录，可能是网络波动或 API 限流)" >> report.md
+            else
+              echo "$RUNS" >> report.md
+            fi
             echo "" >> report.md
             FAILED=$(gh run list --workflow "$WF" --limit 3 \
-              --json conclusion --jq '[.[] | select(.conclusion == "failure")] | length')
+              --json conclusion --jq '[.[] | select(.conclusion == "failure")] | length' 2>/dev/null) || FAILED=0
             if [ "$FAILED" -gt 0 ]; then
               ALERT=1
               echo "⚠️ $WF 近 3 次运行中有 $FAILED 次失败" >> report.md
+              echo "" >> report.md
             fi
           done
 
           echo "### Lint 检查" >> report.md
           echo "" >> report.md
+          LINT_RC=0
           cd knowledge-base
-          python scripts/iterate.py --lint > ../lint.txt 2>&1 || true
+          python scripts/iterate.py --lint > ../lint.txt 2>&1 || LINT_RC=$?
           cd ..
           echo '```' >> report.md
           cat lint.txt >> report.md
           echo '```' >> report.md
           echo "" >> report.md
 
-          if grep -q "^ERROR" lint.txt; then
+          # lint output format: "ERROR <msg>" on errors, "WARNING <msg>" on warnings
+          if [ "$LINT_RC" -ne 0 ]; then
+            ALERT=1
+            echo "⚠️ Lint 脚本执行失败 (exit code $LINT_RC)" >> report.md
+          elif grep -qE "^ERROR " lint.txt; then
             ALERT=1
             echo "⚠️ Lint 发现错误" >> report.md
           fi
@@ -71,16 +84,16 @@ jobs:
 
           if [ "$ALERT" = "1" ]; then
             BODY=$(cat report.md)
-            ISSUE=$(gh issue list --state open --label "auto-monitor" --limit 1 --json number --jq '.[0].number // empty')
+            ISSUE=$(gh issue list --state open --label "auto-monitor" --limit 1 --json number --jq '.[0].number // empty' 2>/dev/null) || true
             if [ -n "$ISSUE" ]; then
-              gh issue comment "$ISSUE" --body "$BODY"
+              gh issue comment "$ISSUE" --body "$BODY" || true
             else
-              gh issue create --title "⚠️ 知识库监控告警" --label "auto-monitor" --body "$BODY"
+              gh issue create --title "⚠️ 知识库监控告警" --label "auto-monitor" --body "$BODY" || true
             fi
             echo "::warning::Issues detected, see report above"
           else
-            for ISSUE in $(gh issue list --state open --label "auto-monitor" --json number --jq '.[].number'); do
-              gh issue close "$ISSUE" --comment "✅ 所有系统正常，自动关闭。"
+            for ISSUE in $(gh issue list --state open --label "auto-monitor" --json number --jq '.[].number' 2>/dev/null); do
+              gh issue close "$ISSUE" --comment "✅ 所有系统正常，自动关闭。" || true
             done
             echo "::notice::All systems healthy"
           fi
