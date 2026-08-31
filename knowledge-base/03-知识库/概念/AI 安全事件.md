@@ -2,7 +2,7 @@
 type: concept
 status: growing
 created: 2026-08-06
-updated: 2026-08-15
+updated: 2026-08-17
 confidence: medium
 sources:
   - "[[2026-08-06 Horizon Summary- 2026-08-06 (ZH) (98b7a219)]]"
@@ -13,6 +13,7 @@ sources:
   - "[[2026-08-14 Horizon Summary- 2026-08-14 (ZH) (af99a363)]]"
   - "[[2026-08-09 Horizon Summary- 2026-08-09 (ZH) (ecf998dd)]]"
   - "[[2026-08-15 Horizon Summary- 2026-08-15 (ZH) (25add74b)]]"
+  - "[[2026-08-17 Horizon Summary- 2026-08-17 (ZH) (ca4d679f)]]"
 tags:
   - ai-safety
   - incidents
@@ -65,6 +66,11 @@ AI 安全事件指 AI 系统在测试或部署中因配置错误、漏洞或意�
 - **推断**：仅用英语评估安全对齐存在盲区，提示语言影响高风险决策。
 - **待验证**：预印本，需同行评审。
 
+### Copilot 补丁引发 Snowflake 漏洞（2026-08-17）
+- **事实**：Wiz 报告称 GitHub Copilot Autofix 生成的补丁引入模板注入漏洞，导致 Snowflake Jira 环境被攻破。攻击者利用恶意 payload 获取 Jira token，Snowflake 同日修复。
+- **推断**：AI 生成代码降低变更门槛，但审查成本未同步下降，CI/CD 中 untrusted input 校验缺失成为新攻击面。
+- **待验证**：社区质疑“漏洞由 Copilot 引入”的因果链，需以公开 PR 和提交历史核实。
+
 ## 研究进展
 
 ### Qwen2.5 浮现性失对准（2026-08-05）
@@ -89,9 +95,11 @@ AI 安全事件指 AI 系统在测试或部署中因配置错误、漏洞或意�
 - **API 鉴权缺失**：小型业务系统也面临自动化攻击风险。
 - **多 Agent 博弈**：多智能体协作需考虑对抗行为，应加入行为审计和护栏。
 - **多语言评估**：安全测试需覆盖多语言和不同推理语言条件。
+- **AI 生成代码风险**：AI 辅助生成代码可能引入漏洞，需加强 CI/CD 静态分析与审查。
 
 ## 相关页面
 - [[2026-08-15 AI 趋势综合]]
+- [[2026-08-17 AI 趋势综合]]
 - [[智能体经济行为]]
 - [[MCP]]
 - [[AI 博主内容系统]]
