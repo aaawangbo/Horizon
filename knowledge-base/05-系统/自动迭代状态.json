@@ -16,14 +16,15 @@
     "https://aaawangbo.github.io/Horizon/2026/08/15/summary-zh.html": "25add74b0ea4c1a20c5b4c3c463413807f633e7219d3dbbc34824303117c7557",
     "https://aaawangbo.github.io/Horizon/2026/08/16/summary-zh.html": "b36b0402a63275494e92d68808f62ccac8e50dc096939922c12174978567709e",
     "https://aaawangbo.github.io/Horizon/2026/08/17/summary-zh.html": "ca4d679ff5b9ee9b91932424d1897aeee91c8830c0becaac36e2038f2c300a5f",
-    "https://aaawangbo.github.io/Horizon/2026/08/23/summary-zh.html": "a2d1a586da70f75aba7f4d12f65e945685343b704ab507048debb6ece950e366"
+    "https://aaawangbo.github.io/Horizon/2026/08/23/summary-zh.html": "a2d1a586da70f75aba7f4d12f65e945685343b704ab507048debb6ece950e366",
+    "https://aaawangbo.github.io/Horizon/2026/08/31/summary-zh.html": "6650bf8c483ec7d832cd9afb3d54910b13abcbefe53b57130fd769e3c8098719"
   },
-  "last_run": "2026-08-31T08:28:36+08:00",
-  "iteration_count": 17,
+  "last_run": "2026-09-07T07:47:26+08:00",
+  "iteration_count": 18,
   "token_usage_total": {
-    "calls": 12,
-    "prompt_tokens": 347918,
-    "completion_tokens": 72160,
-    "total_tokens": 420078
+    "calls": 14,
+    "prompt_tokens": 417845,
+    "completion_tokens": 84101,
+    "total_tokens": 501946
   }
 }
